@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import utils.utils
+# import utils.utils
 import utils
 
 
@@ -35,7 +35,7 @@ def read_clean_part(datum):
 
 
 def read_triviaqa_data(qajson):
-    data = utils.utils.read_json(qajson)
+    data = utils.read_json(qajson)  # utils.
     # read only documents and questions that are a part of clean data set
     if data['VerifiedEval']:
         clean_data = []
@@ -53,5 +53,5 @@ def answer_index_in_document(answer, document):
     for answer_string_in_doc in answer_list:
         index = document.lower().find(answer_string_in_doc)
         if index != -1:
-            return answer_string_in_doc, index
+            return answer['Value'], index # answer_string_in_doc, index  #KML necessary to maintain capitalization for run_squad.py
     return answer['NormalizedValue'], -1

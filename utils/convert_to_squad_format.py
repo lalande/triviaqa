@@ -1,5 +1,5 @@
-import utils.utils
-import utils.dataset_utils
+import utils  # utils.utils
+import dataset_utils  # utils.dataset_utils
 import os
 from tqdm import tqdm
 import random
@@ -9,7 +9,7 @@ import argparse
 
 def get_text(qad, domain):
     local_file = os.path.join(args.web_dir, qad['Filename']) if domain == 'SearchResults' else os.path.join(args.wikipedia_dir, qad['Filename'])
-    return utils.utils.get_file_contents(local_file, encoding='utf-8')
+    return utils.get_file_contents(local_file, encoding='utf-8')  # utils.
 
 
 def select_relevant_portion(text):
@@ -54,7 +54,7 @@ def get_qad_triples(data):
 
 
 def convert_to_squad_format(qa_json_file, squad_file):
-    qa_json = utils.dataset_utils.read_triviaqa_data(qa_json_file)
+    qa_json = dataset_utils.read_triviaqa_data(qa_json_file)  # utils.
     qad_triples = get_qad_triples(qa_json)
 
     random.seed(args.seed)
@@ -71,21 +71,25 @@ def convert_to_squad_format(qa_json_file, squad_file):
         para = {'context': selected_text, 'qas': [{'question': question, 'answers': []}]}
         data.append({'paragraphs': [para]})
         qa = para['qas'][0]
-        qa['id'] = utils.dataset_utils.get_question_doc_string(qid, qad['Filename'])
+        qa['id'] = dataset_utils.get_question_doc_string(qid, qad['Filename'])  # utils.
         qa['qid'] = qid
 
-        ans_string, index = utils.dataset_utils.answer_index_in_document(qad['Answer'], selected_text)
+        ans_string, index = dataset_utils.answer_index_in_document(qad['Answer'], selected_text)  # utils.
+        #if ans_string.lower() == 'roy keane':
+            #print(ans_string)
         if index == -1:
+            qa['is_impossible'] = True
             if qa_json['Split'] == 'train':
                 continue
         else:
-            qa['answers'].append({'text': ans_string, 'answer_start': index})
+            qa['answers'].append({'text': ans_string, 'answer_start': index})  
+            qa['is_impossible'] = False
 
         if qa_json['Split'] == 'train' and len(data) >= args.sample_size and qa_json['Domain'] == 'Web':
             break
 
     squad = {'data': data, 'version': qa_json['Version']}
-    utils.utils.write_json_to_file(squad, squad_file)
+    utils.write_json_to_file(squad, squad_file)  # utils.
     print ('Added', len(data))
 
 
@@ -99,7 +103,7 @@ def get_args():
     parser.add_argument('--seed', default=10, type=int, help='Random seed')
     parser.add_argument('--max_num_tokens', default=800, type=int, help='Maximum number of tokens from a document')
     parser.add_argument('--sample_size', default=80000, type=int, help='Random seed')
-    parser.add_argument('--tokenizer', default='tokenizers/punkt/english.pickle', help='Sentence tokenizer')
+    parser.add_argument('--tokenizer', default='/Users/klalande/nltk_data/tokenizers/punkt/english.pickle', help='Sentence tokenizer')
     args = parser.parse_args()
     return args
 
