@@ -49,9 +49,11 @@ def read_triviaqa_data(qajson):
 
 
 def answer_index_in_document(answer, document):
-    answer_list = answer['NormalizedAliases']
-    for answer_string_in_doc in answer_list:
-        index = document.lower().find(answer_string_in_doc)
-        if index != -1:
-            return answer['Value'], index # answer_string_in_doc, index  #KML necessary to maintain capitalization for run_squad.py
+    answer_list = answer['NormalizedValue']  # KML: answer['NormalizedAliases']
+    #print(answer['NormalizedValue'])
+    #for answer_string_in_doc in answer_list:
+    answer_string_in_doc = answer_list
+    index = document.lower().find(answer_string_in_doc)
+    if index != -1:
+        return answer['Value'], index # answer_string_in_doc, index  #KML necessary to maintain capitalization for run_squad.py
     return answer['NormalizedValue'], -1

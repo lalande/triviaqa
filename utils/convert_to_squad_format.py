@@ -5,6 +5,11 @@ from tqdm import tqdm
 import random
 import nltk
 import argparse
+import sys
+sys.path.insert(0, '../pytorch_pretrained_bert/')
+from pytorch_pretrained_bert.tokenization import (BasicTokenizer,
+                                                  BertTokenizer,
+                                                  whitespace_tokenize)
 
 
 def get_text(qad, domain):
@@ -13,6 +18,14 @@ def get_text(qad, domain):
 
 
 def select_relevant_portion(text):
+    
+    text_tokens = tokenizer.tokenize(text)  # KML: BasicTokenizer from BERT
+    text_tokens_trim = text_tokens[0:min(len(text_tokens), args.max_num_tokens)]
+    text_tokens_trim_str = ' '.join(text_tokens_trim).strip()
+    if True:
+        return text_tokens_trim_str
+    
+    # Ignore this code; not compatable with run_squad.py
     paras = text.split('\n')
     selected = []
     done = False
@@ -75,8 +88,8 @@ def convert_to_squad_format(qa_json_file, squad_file):
         qa['qid'] = qid
 
         ans_string, index = dataset_utils.answer_index_in_document(qad['Answer'], selected_text)  # utils.
-        #if ans_string.lower() == 'roy keane':
-            #print(ans_string)
+        if ans_string.lower() == 'empty':
+            print(ans_string)
         if index == -1:
             qa['is_impossible'] = True
             if qa_json['Split'] == 'train':
@@ -101,8 +114,8 @@ def get_args():
     parser.add_argument('--web_dir', help='Web doc dir')
 
     parser.add_argument('--seed', default=10, type=int, help='Random seed')
-    parser.add_argument('--max_num_tokens', default=800, type=int, help='Maximum number of tokens from a document')
-    parser.add_argument('--sample_size', default=80000, type=int, help='Random seed')
+    parser.add_argument('--max_num_tokens', default= 800, type=int, help='Maximum number of tokens from a document')  # KML: was 800
+    parser.add_argument('--sample_size', default= 80000, type=int, help='Random seed')  # KML: was 80000
     parser.add_argument('--tokenizer', default='/Users/klalande/nltk_data/tokenizers/punkt/english.pickle', help='Sentence tokenizer')
     args = parser.parse_args()
     return args
@@ -111,4 +124,5 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     sent_tokenize = nltk.data.load(args.tokenizer)
+    tokenizer = BasicTokenizer(do_lower_case=False)
     convert_to_squad_format(args.triviaqa_file, args.squad_file)
